@@ -19,6 +19,7 @@ function apply-Power-Settings {
 
 function get-Windows-Updates {
   write-host "[Checking for Windows Updates]" -foregroundcolor "green"
+  wuapp.exe
   wuauclt.exe /updatenow
 }
 
@@ -102,13 +103,14 @@ function rename-computer {
 		$computername.Rename($newname) >> $null
 		write-host ""
 		reboot-computer
-	}
+	} else {
+    get-Windows-Updates
+  }
 }
 
 function main {
   init
   apply-Power-Settings
-  get-Windows-Updates
   disableNetAdapterPowerSaving
   disableUsbHubPowerSaving
   write-host ""
