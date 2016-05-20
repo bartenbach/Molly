@@ -1,5 +1,5 @@
 @echo off
-mode con:cols=79 lines=50
+mode con:cols=90 lines=50
 
 powershell Set-ExecutionPolicy Unrestricted
 powershell .\powershell.ps1

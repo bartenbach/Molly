@@ -30,7 +30,7 @@ function disableUsbHubPowerSaving {
 	  foreach ($h in $hubs) {
 	    $PNPDI = $h.PNPDeviceID
       if ($IN -like "*$PNPDI*") {
-	      Write-Host "[USB HUB power saving feature disabled]" -foregroundcolor "green"
+	      write-host "[USB HUB power saving feature disabled]" -foregroundcolor "green"
         $p.enable = $False
         $p.psbase.put() >> $null
       }
@@ -39,45 +39,42 @@ function disableUsbHubPowerSaving {
 }
 
 function disableNetAdapterPowerSaving { 
-	$PhysicalAdapters = Get-WmiObject -Class Win32_NetworkAdapter|Where-Object{$_.PNPDeviceID -notlike "ROOT\*" `
-	-and $_.Manufacturer -ne "Microsoft" -and $_.ConfigManagerErrorCode -eq 0 -and $_.ConfigManagerErrorCode -ne 22} 
+  $PhysicalAdapters = Get-WmiObject -Class Win32_NetworkAdapter|Where-Object{$_.PNPDeviceID -notlike "ROOT\*" `
+      -and $_.Manufacturer -ne "Microsoft" -and $_.ConfigManagerErrorCode -eq 0 -and $_.ConfigManagerErrorCode -ne 22} 
 	
-	foreach($PhysicalAdapter in $PhysicalAdapters) {
-		$PhysicalAdapterName = $PhysicalAdapter.Name
-		#check the unique device id number of network adapter in the currently environment.
-		$DeviceID = $PhysicalAdapter.DeviceID
-		if([Int32]$DeviceID -lt 10) {
-			$AdapterDeviceNumber = "000"+$DeviceID
-		} else {
-			$AdapterDeviceNumber = "00"+$DeviceID
-		}
+  foreach($PhysicalAdapter in $PhysicalAdapters) {
+    $PhysicalAdapterName = $PhysicalAdapter.Name
+    $DeviceID = $PhysicalAdapter.DeviceID
+    if([Int32]$DeviceID -lt 10) {
+      $AdapterDeviceNumber = "000"+$DeviceID
+    } else {
+      $AdapterDeviceNumber = "00"+$DeviceID
+    }
 		
-		#check whether the registry path exists.
-		$KeyPath = "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4D36E972-E325-11CE-BFC1-08002bE10318}\$AdapterDeviceNumber"
-		if(Test-Path -Path $KeyPath) {
-			$PnPCapabilitiesValue = (Get-ItemProperty -Path $KeyPath).PnPCapabilities
-			if($PnPCapabilitiesValue -eq 24) {
-				write-host "[""$PhysicalAdapterName"" power saving feature already disabled]" -foregroundcolor "green"
-			}
+    $KeyPath = "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4D36E972-E325-11CE-BFC1-08002bE10318}\$AdapterDeviceNumber"
+    if(Test-Path -Path $KeyPath) {
+      $PnPCapabilitiesValue = (Get-ItemProperty -Path $KeyPath).PnPCapabilities
+      if($PnPCapabilitiesValue -eq 24) {
+        write-host "[""$PhysicalAdapterName"" power saving feature already disabled]" -foregroundcolor "green"
+      }
       if($PnPCapabilitiesValue -eq 0) {
-				#check whether change value was successed.
-			  try {	
-					#setting the value of properties of PnPCapabilites to 24, it will disable save power option.
-					Set-ItemProperty -Path $KeyPath -Name "PnPCapabilities" -Value 24 | Out-Null
-					write-host "[""$PhysicalAdapterName"" power saving feature disabled]" -foregroundcolor "green"
-				} catch {
-					write-host "[Failed to disable power saving of network adapter]" -foregroundColor "red"
-				}
-			}
-			if($PnPCapabilitiesValue -eq $null) {
-				try {
-					New-ItemProperty -Path $KeyPath -Name "PnPCapabilities" -Value 24 -PropertyType DWord | Out-Null
-					write-host "[""$PhysicalAdapterName"" - The option ""Allow the computer to turn off this device to save power"" was disabled.]" -foregroundcolor "green"
-				} catch {
-					write-host "Setting the value of properties of PnpCapabilities failed." -foregroundcolor "red"
-				}
-			}
-		} else {
+        try {	
+          #setting the value of properties of PnPCapabilites to 24, it will disable save power option.
+          Set-ItemProperty -Path $KeyPath -Name "PnPCapabilities" -Value 24 | Out-Null
+          write-host "[""$PhysicalAdapterName"" power saving feature disabled]" -foregroundcolor "green"
+        } catch {
+          write-host "[Failed to disable power saving of network adapter]" -foregroundColor "red"
+        }
+      }
+      if($PnPCapabilitiesValue -eq $null) {
+        try {
+          New-ItemProperty -Path $KeyPath -Name "PnPCapabilities" -Value 24 -PropertyType DWord | Out-Null
+		      write-host "[""$PhysicalAdapterName"" power saving feature disabled]" -foregroundcolor "green"
+        } catch {
+		      write-host "[Failed to disable power saving of network adapter]" -foregroundcolor "red"
+	      }
+	    }
+    } else {
 			Write-Warning "The path ($KeyPath) not found."
 		}
 	}
@@ -116,10 +113,8 @@ function main {
   disableUsbHubPowerSaving
   write-host ""
   rename-computer
-  write-host ""
-  write-host "Done!" -foregroundcolor "green"
-  write-host ""
   elephant
+  write-host "Done!" -foregroundcolor "green"
   write-Host "Press any key to continue ..."
   $x = $host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 }
