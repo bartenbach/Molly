@@ -26,15 +26,15 @@ function disableUsbHubPowerSaving {
   $hubs = Get-WmiObject Win32_USBHub
   $powerMgmt = Get-WmiObject MSPower_DeviceEnable -Namespace root\wmi
   foreach ($p in $powerMgmt) {
-	$IN = $p.InstanceName.ToUpper()
-	foreach ($h in $hubs) {
-	  $PNPDI = $h.PNPDeviceID
+	  $IN = $p.InstanceName.ToUpper()
+	  foreach ($h in $hubs) {
+	    $PNPDI = $h.PNPDeviceID
       if ($IN -like "*$PNPDI*") {
-	    Write-Host "[USB HUB power saving feature disabled]" -foregroundcolor "green"
+	      Write-Host "[USB HUB power saving feature disabled]" -foregroundcolor "green"
         $p.enable = $False
         $p.psbase.put() >> $null
       }
-	}
+	  }
   }
 }
 
@@ -59,9 +59,9 @@ function disableNetAdapterPowerSaving {
 			if($PnPCapabilitiesValue -eq 24) {
 				write-host "[""$PhysicalAdapterName"" power saving feature already disabled]" -foregroundcolor "green"
 			}
-			if($PnPCapabilitiesValue -eq 0) {
+      if($PnPCapabilitiesValue -eq 0) {
 				#check whether change value was successed.
-				try {	
+			  try {	
 					#setting the value of properties of PnPCapabilites to 24, it will disable save power option.
 					Set-ItemProperty -Path $KeyPath -Name "PnPCapabilities" -Value 24 | Out-Null
 					write-host "[""$PhysicalAdapterName"" power saving feature disabled]" -foregroundcolor "green"
@@ -100,8 +100,8 @@ function rename-computer {
 	[string]$prompt = read-host
 
 	if ($prompt -eq "y" -or $prompt -eq "yes") {
-	    write-host "New Name: " -foregroundColor "yellow" -noNewline
-	    [string]$newname = read-host
+	  write-host "New Name: " -foregroundColor "yellow" -noNewline
+	  [string]$newname = read-host
 		$computername.Rename($newname) >> $null
 		write-host ""
 		reboot-computer
