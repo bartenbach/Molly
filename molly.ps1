@@ -1,7 +1,7 @@
 # Molly's Laptop Setup Checklist
 # Version 0.0.2
 # Blake Bartenbach
-$version = '0.0.2'
+$version = '0.0.3'
 
 function init {
   write-host "[Molly's Laptop Setup Checklist $version]" -foregroundcolor "yellow"
@@ -86,6 +86,7 @@ function reboot-computer {
 	[string]$Reboot = Read-Host
 	if ($Reboot -eq "y" -or $Reboot -eq "yes") {
 		Restart-Computer -Force
+    Exit
 	}
 }
 
@@ -100,9 +101,26 @@ function rename-computer {
 	if ($prompt -eq "y" -or $prompt -eq "yes") {
 	  write-host "New Name: " -foregroundColor "yellow" -noNewline
 	  [string]$newname = read-host
-		$computername.Rename($newname) >> $null
-		write-host ""
-		reboot-computer
+    # TESTING
+		$success = $computername.Rename($newname)
+    if ($success.ReturnValue -eq 0) {
+      Write-Host "Computer renamed successfully" -ForegroundColor "Green"
+      write-host ""
+		  reboot-computer
+    } else {
+      Write-Host "Failed to rename computer" -foregroundColor "Yellow"
+      Write-Host ""
+      Write-Host "Adding computer to Workgroup A" -foregroundColor "Green"
+      Add-Computer -WorkgroupName A
+      # can we rename the computer here?
+      Write-Host "Attempting to rename computer..." -ForegroundColor "Green"
+      $success = $computername.Rename($newname)
+      Write-Host "Attempting to re-join domain..." -ForegroundColor "Green"
+      Add-Computer -DomainName chsomaha.org
+      Write-Host "(Not sure if this actually works...)" -ForegroundColor "Yellow"
+      reboot-computer
+    }
+
 	} else {
     get-Windows-Updates
   }
