@@ -23,6 +23,11 @@ function get-Windows-Updates {
   wuauclt.exe /updatenow
 }
 
+function set-BootMenu-Timeout {
+  write-host "[Setting boot menu timeout to 3 seconds]" -foregroundcolor "green"
+  bcdedit /timeout 3
+}
+
 function disableUsbHubPowerSaving {
   $hubs = Get-WmiObject Win32_USBHub
   $powerMgmt = Get-WmiObject MSPower_DeviceEnable -Namespace root\wmi
@@ -122,7 +127,8 @@ function rename-computer {
     }
 
 	} else {
-    get-Windows-Updates
+    # this sucks
+    #get-Windows-Updates
   }
 }
 
@@ -131,6 +137,7 @@ function main {
   apply-Power-Settings
   disableNetAdapterPowerSaving
   disableUsbHubPowerSaving
+  set-BootMenu-Timeout
   write-host ""
   rename-computer
   elephant
