@@ -25,7 +25,7 @@ function get-Windows-Updates {
 
 function set-BootMenu-Timeout {
   write-host "[Setting boot menu timeout to 3 seconds]" -foregroundcolor "green"
-  bcdedit /timeout 3
+  bcdedit /timeout 3 >> $null
 }
 
 function disableUsbHubPowerSaving {
